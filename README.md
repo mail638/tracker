@@ -25,6 +25,8 @@ SUPABASE_TRACKER_OWNER_ID=florian
 
 Wenn die Variablen fehlen, laeuft die App weiter mit lokalem Browser-Speicher. Sobald sie gesetzt sind, liest die App den zentralen Supabase-Stand und speichert Aenderungen automatisch zurueck.
 
+Mehr Details stehen in `docs/supabase.md`.
+
 ## Wichtige Befehle
 
 ```bash

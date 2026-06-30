@@ -1,10 +1,14 @@
-import { env } from "cloudflare:workers";
-import { NextResponse } from "next/server";
+import { env } from 'cloudflare:workers';
+import { NextResponse } from 'next/server';
 
 type TrackerState = {
-  walkLog?: Record<string, boolean>;
-  positions?: unknown[];
-  snapshots?: Record<string, unknown>;
+  training?: Record<string, unknown>;
+  weeks?: Record<string, unknown>;
+  wealth?: unknown[];
+  linkedin?: unknown[];
+  sleep?: unknown[];
+  reviews?: Record<string, unknown>;
+  goals?: Record<string, unknown>;
 };
 
 type SupabaseConfig = {
@@ -13,19 +17,27 @@ type SupabaseConfig = {
   ownerId: string;
 };
 
-const tableName = "tracker_state";
-const emptyState = { walkLog: {}, positions: [], snapshots: {} };
+const tableName = 'tracker_state';
+const emptyState: Required<TrackerState> = {
+  training: {},
+  weeks: {},
+  wealth: [],
+  linkedin: [],
+  sleep: [],
+  reviews: {},
+  goals: {},
+};
 
 function readEnv(name: string): string {
   const workerValue = (env as Record<string, string | undefined>)[name];
-  const processValue = typeof process !== "undefined" ? process.env[name] : undefined;
-  return String(workerValue || processValue || "").trim();
+  const processValue = typeof process !== 'undefined' ? process.env[name] : undefined;
+  return String(workerValue || processValue || '').trim();
 }
 
 function getSupabaseConfig(): SupabaseConfig | null {
-  const url = readEnv("SUPABASE_URL").replace(/\/$/, "");
-  const key = readEnv("SUPABASE_SERVICE_ROLE_KEY");
-  const ownerId = readEnv("SUPABASE_TRACKER_OWNER_ID") || "default";
+  const url = readEnv('SUPABASE_URL').replace(/\/$/, '');
+  const key = readEnv('SUPABASE_SERVICE_ROLE_KEY');
+  const ownerId = readEnv('SUPABASE_TRACKER_OWNER_ID') || 'default';
 
   if (!url || !key) return null;
   return { url, key, ownerId };
@@ -34,19 +46,27 @@ function getSupabaseConfig(): SupabaseConfig | null {
 function supabaseHeaders(config: SupabaseConfig, extra?: HeadersInit): HeadersInit {
   return {
     apikey: config.key,
-    Authorization: "Bearer " + config.key,
-    "Content-Type": "application/json",
+    Authorization: 'Bearer ' + config.key,
+    'Content-Type': 'application/json',
     ...extra,
   };
 }
 
+function normalizeRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
 function normalizeState(value: unknown): Required<TrackerState> {
-  if (!value || typeof value !== "object") return emptyState;
+  if (!value || typeof value !== 'object') return emptyState;
   const state = value as TrackerState;
   return {
-    walkLog: state.walkLog && typeof state.walkLog === "object" ? state.walkLog : {},
-    positions: Array.isArray(state.positions) ? state.positions : [],
-    snapshots: state.snapshots && typeof state.snapshots === "object" ? state.snapshots : {},
+    training: normalizeRecord(state.training),
+    weeks: normalizeRecord(state.weeks),
+    wealth: Array.isArray(state.wealth) ? state.wealth : [],
+    linkedin: Array.isArray(state.linkedin) ? state.linkedin : [],
+    sleep: Array.isArray(state.sleep) ? state.sleep : [],
+    reviews: normalizeRecord(state.reviews),
+    goals: normalizeRecord(state.goals),
   };
 }
 
@@ -57,18 +77,18 @@ export async function GET() {
   }
 
   const params = new URLSearchParams({
-    owner_id: "eq." + config.ownerId,
-    select: "state,updated_at",
-    limit: "1",
+    owner_id: 'eq.' + config.ownerId,
+    select: 'state,updated_at',
+    limit: '1',
   });
-  const response = await fetch(config.url + "/rest/v1/" + tableName + "?" + params.toString(), {
-    cache: "no-store",
+  const response = await fetch(config.url + '/rest/v1/' + tableName + '?' + params.toString(), {
+    cache: 'no-store',
     headers: supabaseHeaders(config),
   });
 
   if (!response.ok) {
     return NextResponse.json(
-      { configured: true, error: "Supabase konnte nicht gelesen werden." },
+      { configured: true, error: 'Supabase konnte nicht gelesen werden.' },
       { status: 502 },
     );
   }
@@ -88,9 +108,9 @@ export async function PUT(request: Request) {
   }
 
   const state = normalizeState(await request.json());
-  const response = await fetch(config.url + "/rest/v1/" + tableName + "?on_conflict=owner_id", {
-    method: "POST",
-    headers: supabaseHeaders(config, { Prefer: "resolution=merge-duplicates" }),
+  const response = await fetch(config.url + '/rest/v1/' + tableName + '?on_conflict=owner_id', {
+    method: 'POST',
+    headers: supabaseHeaders(config, { Prefer: 'resolution=merge-duplicates' }),
     body: JSON.stringify({
       owner_id: config.ownerId,
       state,
@@ -100,7 +120,7 @@ export async function PUT(request: Request) {
 
   if (!response.ok) {
     return NextResponse.json(
-      { configured: true, saved: false, error: "Supabase konnte nicht gespeichert werden." },
+      { configured: true, saved: false, error: 'Supabase konnte nicht gespeichert werden.' },
       { status: 502 },
     );
   }

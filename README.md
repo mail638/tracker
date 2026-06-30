@@ -1,6 +1,14 @@
-# Tracker
+# Steuerungs-Tracker
 
-Privater Geh- und Portfolio-Tracker. Die App speichert Daten lokal im Browser und kann ueber Supabase synchronisieren, damit derselbe Stand auf mehreren Endgeraeten verfuegbar ist.
+Privater Personal-Operating-System-Tracker fuer Aktivitaet, Vermoegen, Sleep, LinkedIn-Kontakte, Monatsrueckblicke und Ziele. Die App speichert Daten lokal im Browser und kann ueber Supabase synchronisieren, damit derselbe Stand auf mehreren Endgeraeten verfuegbar ist.
+
+## Funktionen
+
+- Aktivitaet: Kraft, Cardio oder Erholung pro Tag, Wochenuebersicht und Streak
+- Portfolio: Gesamtvermoegen, Allokation, Verlauf und Portfolio-CSV-Import
+- Sleep: Fitbit-Score, Stunden, Verlauf und Monatsrueckblick
+- LinkedIn: Kontakte als Zeitreihe und CSV-Import aus dem LinkedIn-Export
+- Ziele: Fokusfelder fuer Gesundheit, Finanzen und Netzwerk
 
 ## Lokal starten
 
@@ -22,8 +30,6 @@ SUPABASE_TRACKER_OWNER_ID=florian
 ```
 
 `SUPABASE_SERVICE_ROLE_KEY` bleibt serverseitig und darf nicht als `NEXT_PUBLIC_...` Variable gesetzt werden.
-
-Wenn die Variablen fehlen, laeuft die App weiter mit lokalem Browser-Speicher. Sobald sie gesetzt sind, liest die App den zentralen Supabase-Stand und speichert Aenderungen automatisch zurueck.
 
 Mehr Details stehen in `docs/supabase.md`.
 

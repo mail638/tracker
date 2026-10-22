@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type ActivityType = 'kraft' | 'cardio' | 'erholung';
 type TrainingLog = Record<string, ActivityType>;
@@ -326,7 +326,7 @@ function contactsFromCSV(text: string): LinkedinImportResult {
   return { series, parsed, bad, total: parsed };
 }
 
-export default function WalkingTracker() {
+function TrackerApp() {
   const [tab, setTab] = useState('day');
   const [loaded, setLoaded] = useState(false);
   const [syncStatus, setSyncStatus] = useState('Lokaler Speicher bereit.');
@@ -762,3 +762,82 @@ function Bars({ data, wide = false }: { data: number[]; wide?: boolean }) {
 function HistoryTable({ headers, rows }: { headers: string[]; rows: Array<Array<React.ReactNode>> }) {
   return <table className='hist'><thead><tr>{headers.map((header, index) => <th key={index} style={index === 1 ? { textAlign: 'right' } : undefined}>{header}</th>)}</tr></thead><tbody>{rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cellIndex} className={typeof cell === 'number' || (typeof cell === 'string' && cell.startsWith('€')) ? 'num' : undefined} style={cellIndex === row.length - 1 ? { textAlign: 'right' } : undefined}>{cell}</td>)}</tr>)}</tbody></table>;
 }
+
+
+function WalkingTracker() {
+  const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/auth', { cache: 'no-store', credentials: 'same-origin' })
+      .then(async (response) => {
+        const result = await response.json();
+        if (active) setAuthState(response.ok && result.authenticated ? 'authenticated' : 'unauthenticated');
+      })
+      .catch(() => {
+        if (active) {
+          setError('Anmeldung ist derzeit nicht erreichbar.');
+          setAuthState('unauthenticated');
+        }
+      });
+    return () => { active = false; };
+  }, []);
+
+  async function signIn(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    setError('');
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      if (!response.ok) throw new Error('Anmeldung fehlgeschlagen. Bitte Zugangsdaten pruefen.');
+      setPassword('');
+      setAuthState('authenticated');
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Anmeldung fehlgeschlagen.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function signOut() {
+    await fetch('/api/auth', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'logout' }),
+    });
+    setAuthState('unauthenticated');
+  }
+
+  if (authState === 'checking') {
+    return <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: C.bg, color: C.inkSoft, fontFamily: SANS }}>Sitzung wird geprueft ...</main>;
+  }
+
+  if (authState === 'authenticated') {
+    return <><TrackerApp /><button type='button' onClick={() => void signOut()} style={{ position: 'fixed', right: 20, top: 16, zIndex: 10, padding: '7px 11px', borderRadius: 7, border: '1px solid #2d343a', background: '#1c2024', color: '#8a949c', cursor: 'pointer', fontFamily: SANS }}>Abmelden</button></>;
+  }
+
+  return (
+    <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24, background: C.bg, color: C.ink, fontFamily: SANS }}>
+      <form onSubmit={signIn} style={{ width: '100%', maxWidth: 380, padding: 28, border: '1px solid #2d343a', borderRadius: 12, background: '#1c2024' }}>
+        <div style={{ color: C.teal, fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase' }}>Personal Operating System</div>
+        <h1 style={{ margin: '10px 0 8px', fontSize: 24 }}>Steuerungs-Tracker</h1>
+        <p style={{ margin: '0 0 22px', color: C.inkSoft, fontSize: 14 }}>Bitte gib dein Zugangspasswort ein, um deine Daten zu laden.</p>
+        <label htmlFor='tracker-password' style={{ display: 'block', marginBottom: 7, color: C.inkSoft, fontSize: 12 }}>Zugangspasswort</label>
+        <input id='tracker-password' type='password' autoComplete='current-password' required value={password} onChange={(event) => setPassword(event.target.value)} style={{ boxSizing: 'border-box', width: '100%', padding: 11, border: '1px solid #2d343a', borderRadius: 7, background: '#14171a', color: C.ink, font: 'inherit' }} />
+        {error && <p role='alert' style={{ color: C.warn, fontSize: 13 }}>{error}</p>}
+        <button type='submit' disabled={submitting} style={{ width: '100%', marginTop: 14, padding: 11, border: 0, borderRadius: 7, background: C.teal, color: '#14171a', fontWeight: 700, cursor: 'pointer' }}>{submitting ? 'Anmeldung ...' : 'Anmelden'}</button>
+      </form>
+    </main>
+  );
+}
+
+export default WalkingTracker;

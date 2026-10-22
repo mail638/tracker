@@ -6,7 +6,7 @@ const config = {
   supabaseUrl: 'https://project.supabase.co',
   serviceRoleKey: 'server-only-service-role-secret',
   ownerId: 'tracker-owner-uuid',
-  accessPassword: 'a-long-test-password',
+  accessPassword: 'a-long-test-password-that-is-over-32-characters',
   sessionSecret: 'a-session-secret-that-is-at-least-32-bytes',
 };
 

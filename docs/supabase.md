@@ -4,11 +4,11 @@ Die App nutzt Supabase als zentralen JSON-Speicher fuer den Steuerungs-Tracker. 
 
 ## 1. Projekt anlegen
 
-Lege in Supabase ein neues Projekt an und oeffne danach den SQL Editor.
+Lege in Supabase ein neues Projekt an und oeffne danach den SQL Editor. Die Repository-Konfiguration `.openai/hosting.json` enthaelt keine vorgelagerte Zugriffssperre; die API setzt deshalb die eigene Anmeldung zwingend voraus.
 
 ## 2. Tabelle erstellen
 
-Fuehre den Inhalt aus `supabase/schema.sql` im SQL Editor aus.
+Fuehre den Inhalt aus `supabase/schema.sql` im SQL Editor aus. Bei einer bestehenden Installation fuehre die Datei erneut aus, damit die Rechte fuer `anon` und `authenticated` explizit entzogen werden.
 
 Die Tabelle `public.tracker_state` speichert pro `owner_id` genau einen JSON-Stand:
 
@@ -47,7 +47,7 @@ Verwende den Service-Role-Key nur als serverseitige Umgebungsvariable. Nicht in 
 
 Die App ist fuer einen berechtigten Nutzer vorgesehen. Beim Login wird ein signiertes, sieben Tage gueltiges Sitzungscookie gesetzt. Es ist `HttpOnly`, `SameSite=Strict` und bei HTTPS `Secure`; das Passwort wird weder im Browser gespeichert noch an Supabase gesendet. Tracker-GET und -PUT verlangen dieses Cookie und pruefen bei Schreibzugriffen zusaetzlich den Origin-Header.
 
-Setze `TRACKER_ACCESS_PASSWORD` auf ein starkes, nur fuer diese App verwendetes Passwort und `TRACKER_SESSION_SECRET` auf einen zufaelligen Wert mit mindestens 32 Zeichen. Beide Werte muessen als serverseitige Hosting-Secrets konfiguriert werden. Ein Beispiel fuer einen Session-Schluessel:
+Erzeuge `TRACKER_ACCESS_PASSWORD` als zufaelliges, nur fuer diese App verwendetes Passwort (zum Beispiel mit `openssl rand -base64 32`) und `TRACKER_SESSION_SECRET` auf einen zufaelligen Wert mit mindestens 32 Zeichen. Beide Werte muessen als serverseitige Hosting-Secrets konfiguriert werden. Ein Beispiel fuer einen Session-Schluessel:
 
 ```bash
 openssl rand -base64 48
@@ -66,3 +66,8 @@ Ohne alle erforderlichen Secrets antwortet die API geschlossen mit HTTP 503. Es 
 ## Sicherheit
 
 Verwende den Service-Role-Key nur als serverseitige Umgebungsvariable. Nicht in `.env`, Screenshots, Browser-Code oder `NEXT_PUBLIC_...` Variablen veroeffentlichen.
+
+
+## Sicherheitstests
+
+Fuehre die automatisierten Authentifizierungs- und API-Zugriffstests mit `npm run test:security` aus.

@@ -20,7 +20,9 @@ async function login() {
     config,
   );
   assert.equal(response.status, 200);
-  return response.headers.get('set-cookie')!.split(';', 1)[0];
+  const cookie = response.headers.get('set-cookie');
+  assert.ok(cookie);
+  return cookie.split(';', 1)[0];
 }
 
 test('unauthenticated GET cannot read tracker state or contact Supabase', async () => {

@@ -19,6 +19,13 @@ type TrackerState = {
 const COOKIE_NAME = 'tracker_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
+function json(data: unknown, status = 200, headers: HeadersInit = {}) {
+  return Response.json(data, {
+    status,
+    headers: { 'Cache-Control': 'no-store', ...headers },
+  });
+}
+
 function isConfigured(config: TrackerApiConfig | null): config is TrackerApiConfig {
   return Boolean(
     config?.supabaseUrl &&

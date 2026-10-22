@@ -21,17 +21,21 @@ npm run dev
 
 1. Neues Supabase-Projekt anlegen.
 2. `supabase/schema.sql` im Supabase SQL Editor ausfuehren.
-3. Diese Umgebungsvariablen setzen:
+3. Diese serverseitigen Umgebungsvariablen setzen:
 
 ```bash
 SUPABASE_URL=https://dein-projekt.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=dein-service-role-key
 SUPABASE_TRACKER_OWNER_ID=florian
+TRACKER_ACCESS_PASSWORD=ein-langes-einzigartiges-passwort
+TRACKER_SESSION_SECRET=ein-zufaelliger-geheimer-wert-mit-mindestens-32-zeichen
 ```
 
 `SUPABASE_SERVICE_ROLE_KEY` bleibt serverseitig und darf nicht als `NEXT_PUBLIC_...` Variable gesetzt werden.
 
-Mehr Details stehen in `docs/supabase.md`.
+Die gehostete App verlangt das Zugangspasswort vor dem Anzeigen und Synchronisieren der Tracker-Daten. Passwort, Session-Schluessel und Supabase-Service-Role-Key muessen als serverseitige Hosting-Secrets gesetzt sein; sie duerfen nie als `NEXT_PUBLIC_...` Variablen veroeffentlicht werden.
+
+Mehr Details und Konfigurationsschritte stehen in `docs/supabase.md`.
 
 ## Wichtige Befehle
 

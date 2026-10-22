@@ -35,7 +35,7 @@ TRACKER_SESSION_SECRET=ein-zufaelliger-geheimer-wert-mit-mindestens-32-zeichen
 
 Die gehostete App verlangt das Zugangspasswort vor dem Anzeigen und Synchronisieren der Tracker-Daten. Passwort, Session-Schluessel und Supabase-Service-Role-Key muessen als serverseitige Hosting-Secrets gesetzt sein; sie duerfen nie als `NEXT_PUBLIC_...` Variablen veroeffentlicht werden.
 
-Mehr Details und Konfigurationsschritte stehen in `docs/supabase.md`.
+Mehr Details und Konfigurationsschritte stehen in `docs/supabase.md`. Sicherheitstests: `npm run test:security`.
 
 ## Wichtige Befehle
 

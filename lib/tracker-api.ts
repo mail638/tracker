@@ -31,7 +31,7 @@ function isConfigured(config: TrackerApiConfig | null): config is TrackerApiConf
     config?.supabaseUrl &&
       config.serviceRoleKey &&
       config.ownerId &&
-      config.accessPassword &&
+      config.accessPassword.length >= 32 &&
       config.sessionSecret.length >= 32,
   );
 }

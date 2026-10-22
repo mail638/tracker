@@ -19,6 +19,16 @@ type TrackerState = {
 const COOKIE_NAME = 'tracker_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
+function isConfigured(config: TrackerApiConfig | null): config is TrackerApiConfig {
+  return Boolean(
+    config?.supabaseUrl &&
+      config.serviceRoleKey &&
+      config.ownerId &&
+      config.accessPassword &&
+      config.sessionSecret.length >= 32,
+  );
+}
+
 function safeEqual(left: string, right: string): boolean {
   const encoder = new TextEncoder();
   const a = encoder.encode(left);

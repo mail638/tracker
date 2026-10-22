@@ -27,7 +27,7 @@ npm run dev
 SUPABASE_URL=https://dein-projekt.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=dein-service-role-key
 SUPABASE_TRACKER_OWNER_ID=florian
-TRACKER_ACCESS_PASSWORD=ein-langes-einzigartiges-passwort
+TRACKER_ACCESS_PASSWORD=zufaelliges-passwort-mit-mindestens-32-zeichen
 TRACKER_SESSION_SECRET=ein-zufaelliger-geheimer-wert-mit-mindestens-32-zeichen
 ```
 
@@ -35,7 +35,7 @@ TRACKER_SESSION_SECRET=ein-zufaelliger-geheimer-wert-mit-mindestens-32-zeichen
 
 Die gehostete App verlangt das Zugangspasswort vor dem Anzeigen und Synchronisieren der Tracker-Daten. Passwort, Session-Schluessel und Supabase-Service-Role-Key muessen als serverseitige Hosting-Secrets gesetzt sein; sie duerfen nie als `NEXT_PUBLIC_...` Variablen veroeffentlicht werden.
 
-Mehr Details und Konfigurationsschritte stehen in `docs/supabase.md`. Sicherheitstests: `npm run test:security`.
+Erzeuge Passwort und Session-Schluessel mit mindestens 32 Zeichen, zum Beispiel mit `openssl rand -base64 48`. Mehr Details und Konfigurationsschritte stehen in `docs/supabase.md`. Sicherheitstests: `npm run test:security`.
 
 ## Wichtige Befehle
 

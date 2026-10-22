@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type ActivityType = 'kraft' | 'cardio' | 'erholung';
 type TrainingLog = Record<string, ActivityType>;
@@ -786,7 +786,7 @@ function WalkingTracker() {
     return () => { active = false; };
   }, []);
 
-  async function signIn(event: React.FormEvent<HTMLFormElement>) {
+  async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitting(true);
     setError('');
